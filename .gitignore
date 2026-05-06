@@ -1,5 +1,6 @@
-# Datasets (large, not versioned)
-dataset/
+# Datasets — only PAD-UFES-20 excluded (too large)
+dataset/PAD-UFES-20/
+dataset/merged_metadata.csv
 
 # Model weights (large binaries)
 *.pth
