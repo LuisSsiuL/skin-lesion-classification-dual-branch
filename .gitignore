@@ -1,12 +1,8 @@
 # Datasets (large, not versioned)
 dataset/
 
-# Model weights & training artifacts
+# Model weights (large binaries)
 *.pth
-*.pkl
-optuna_study.pkl
-training_history.pkl
-evaluation_results.pkl
 
 # Python
 __pycache__/
@@ -30,6 +26,3 @@ env/
 # Claude
 .claude/
 
-# Scratch files
-tes.py
-tes.swift
