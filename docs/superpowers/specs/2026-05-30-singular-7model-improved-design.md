@@ -103,6 +103,38 @@ freeze@5, grad-clip, 60 final epochs, patience 20.
 - **Dataset-suffixed artifacts** (`_improved_{dataset}`) so the two machines and the old
   notebook never overwrite each other.
 
+## Literature positioning & realistic targets
+
+Derm7pt diagnosis (5-class — our exact task) is a hard, tiny (1,011-case), imbalanced
+benchmark. Published results:
+
+| Method | DIAG acc | Modalities |
+|--------|----------|-----------|
+| Kawahara 2019 (Inception comb) | 74.2% | clinical + dermoscopic |
+| HcCNN | 69.9% | clinical + dermoscopic |
+| AMFAM | 75.4% | clinical + dermoscopic + metadata |
+| TFormer | 77.5% | clinical + dermoscopic + metadata |
+| FusionM4Net | 77.6% | clinical + dermoscopic + metadata |
+| SkinM2Former (SOTA) | 77.85% | clinical + dermoscopic + metadata |
+| **Our Dual Concat (current)** | **73.0%** | clinical + dermoscopic |
+| Our Full Model (current) | 66.5% | clinical + dermoscopic |
+
+Takeaways:
+- Our image-only concat baseline (73%) already matches Kawahara's image-only combined model
+  (74.2%) and trails SOTA by only ~4–5 pts — and **all SOTA above also use patient
+  metadata + multi-task 7-point supervision**, which we deliberately do not.
+- Diagnosis tops out ~78%. Training improvements realistically buy **+1 to +4 pts**, not a
+  dramatic jump. The thesis should frame results accordingly.
+- Cross-attention works in SOTA, but with transformers + metadata + cross-validation + heavy
+  regularization. Our cross-attn lagging on 707 images / a single split is the expected
+  "attention is data-hungry" finding — defensible, not a bug.
+- The "98.66%" / "0.99" figures in some papers are per-criterion binary averages over the
+  7-point checklist, NOT 5-class diagnosis. Not comparable; do not cite as our target.
+
+**Decisions (confirmed):** stay **image-only** (clinical + dermoscopic, no metadata) for a
+clean "competitive without metadata" story; keep the existing **custom stratified 70/15/15
+split** (seed 42) for consistency across our runs.
+
 ## Notebook structure (cells)
 
 1. Setup: imports (+ optuna, AMP, SWA), seed, device.
@@ -139,8 +171,13 @@ Per dataset on CUDA: one ~15-trial search on the Full Model (~1–3h with prunin
 trainings (~1–2h) ≈ **~3–5h**. No mixup / no contrastive-pretrain / no per-model search →
 no blow-up. M5 is far slower (run derm7pt there at most; milk10k on the CUDA box).
 
-## Out of scope
+## Out of scope (documented as thesis future work)
 
+- **Patient-metadata branch** — the #1 lever in every Derm7pt SOTA method (~4 pts). Excluded
+  now for a clean image-only comparison; document as the highest-value next step.
+- **Official Derm7pt split + nested CV** — needed for direct comparability to the published
+  table; we keep the custom 70/15/15 for now.
+- **Multi-task 7-point criteria supervision** — auxiliary regularization used by SOTA.
 - Per-model hyperparameter tuning (confounds the comparison).
 - Contrastive pretrain-and-replace (proven worst, expensive).
 - Architectural changes to the 7 models (kept verbatim for a clean before/after).
